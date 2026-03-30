@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Panmure RFC — Coaching Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --maroon: #6B1E2E;
+  --maroon-deep: #4A1220;
+  --gold: #C8972A;
+  --gold-light: #E8B84B;
+  --dark: #111111;
+  --surface: #1A1A1A;
+  --card: #202020;
+  --border: rgba(255,255,255,0.08);
+  --text: #F0EDE8;
+  --muted: #777060;
+  --green: #2D7A4A;
+  --green-light: #5DC882;
+  --red-bg: #7A2D3A;
+  --red-light: #E87A8A;
+  --amber-bg: #5A3A0A;
+  --amber-light: #E8B84B;
+  --blue: #4A90D9;
+  --blue-light: #7AB8E8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow-x:hidden;}
+body{background:var(--dark);color:var(--text);font-family:'Barlow',sans-serif;}
+
+/* ── HEADER ── */
+.hdr{background:var(--maroon-deep);border-bottom:2.5px solid var(--gold);padding:0 14px;position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;height:54px;}
+.hdr-left{display:flex;align-items:center;gap:10px;}
+.badge{width:34px;height:34px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:11px;color:var(--maroon-deep);flex-shrink:0;}
+.hdr-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:18px;letter-spacing:1px;color:#fff;line-height:1;}
+.hdr-sub{font-size:9px;color:var(--gold-light);letter-spacing:2px;font-family:'Barlow Condensed',sans-serif;font-weight:600;}
+.hdr-user{display:flex;align-items:center;gap:6px;}
+.user-pill{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;padding:5px 11px;border-radius:20px;cursor:pointer;transition:all .2s;border:1px solid var(--border);background:var(--surface);color:var(--muted);}
+.user-pill.active{background:var(--maroon);border-color:var(--gold);color:var(--gold-light);}
+.user-pill.coach-active{background:var(--gold);color:var(--dark);border-color:var(--gold);}
+
+/* ── NAV ── */
+.nav{background:var(--surface);border-bottom:1px solid var(--border);display:flex;overflow-x:auto;scrollbar-width:none;padding:0 10px;}
+.nav::-webkit-scrollbar{display:none;}
+.nav-tab{padding:12px 14px 10px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;display:flex;align-items:center;gap:5px;user-select:none;}
+.nav-tab:hover{color:var(--text);}
+.nav-tab.active{color:var(--gold-light);border-bottom-color:var(--gold);}
+
+/* ── PAGES ── */
+.page{display:none;animation:fadeUp .3s ease both;}
+.page.active{display:block;}
+.container{max-width:860px;margin:0 auto;padding:18px 13px 70px;}
+
+/* ── TYPOGRAPHY ── */
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:1px;color:#fff;}
+.sec-title span{color:var(--gold);}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:15px;}
+
+/* ── BUTTONS ── */
+.btn{border:none;border-radius:7px;padding:9px 16px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px;}
+.btn-gold{background:var(--gold);color:var(--dark);}
+.btn-gold:hover{background:var(--gold-light);transform:translateY(-1px);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);}
+.btn-outline:hover{border-color:var(--gold);color:var(--text);}
+.btn-maroon{background:var(--maroon);color:#fff;border:1px solid rgba(200,151,42,.3);}
+.btn-maroon:hover{border-color:var(--gold);}
+.btn-full{width:100%;justify-content:center;padding:12px;}
+.btn-danger{background:rgba(122,45,58,.3);color:var(--red-light);border:1px solid rgba(122,45,58,.4);}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:15px 17px;margin-bottom:10px;transition:border-color .2s;}
+.card:hover{border-color:rgba(200,151,42,.2);}
+.card-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:6px;}
+.card-body{font-size:13px;color:rgba(240,237,232,.75);line-height:1.5;margin-bottom:9px;}
+.card-meta{display:flex;gap:7px;flex-wrap:wrap;align-items:center;}
+
+/* ── PILLS ── */
+.pill{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;padding:3px 9px;border-radius:20px;text-transform:uppercase;}
+.pill-training{background:rgba(45,122,74,.25);color:#5DC882;}
+.pill-selection{background:rgba(74,144,217,.2);color:#7AB8E8;}
+.pill-tactics{background:rgba(200,151,42,.15);color:var(--gold-light);}
+.pill-general{background:rgba(255,255,255,.06);color:#9090A0;}
+.pill-pinned{background:rgba(200,151,42,.12);color:var(--gold);border:1px solid rgba(200,151,42,.3);}
+.pill-castle{background:rgba(200,151,42,.15);color:var(--gold-light);}
+.pill-law{background:rgba(74,144,217,.15);color:#7AB8E8;}
+.post-time{font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;}
+.post-author{font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-weight:600;}
+
+/* ── PINNED ── */
+.pinned{background:linear-gradient(135deg,var(--maroon),var(--maroon-deep));border:1px solid rgba(200,151,42,.3);border-left:3px solid var(--gold);border-radius:10px;padding:14px 17px;margin-bottom:12px;}
+.pin-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:4px;}
+.pinned h3{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;color:#fff;margin-bottom:5px;}
+.pinned p{font-size:13px;color:rgba(240,237,232,.8);line-height:1.5;}
+
+/* ── FILTER ── */
+.filter-bar{display:flex;gap:6px;margin-bottom:15px;flex-wrap:wrap;}
+.fbtn{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:5px 12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.fbtn:hover{border-color:var(--gold);color:var(--text);}
+.fbtn.active{background:var(--maroon);border-color:var(--gold);color:var(--gold-light);}
+
+/* ── AVAILABILITY ── */
+.session-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+@media(max-width:460px){.session-grid{grid-template-columns:1fr;}}
+.sess-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 15px;}
+.sess-day{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:1px;}
+.sess-date{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:#fff;line-height:1;margin-bottom:4px;}
+.sess-info{font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.4;}
+.avail-btns{display:flex;gap:5px;}
+.avail-btn{flex:1;border:none;border-radius:6px;padding:9px 4px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;cursor:pointer;transition:all .2s;text-align:center;}
+.ab-yes{background:rgba(45,122,74,.2);color:var(--green-light);border:1px solid rgba(45,122,74,.3);}
+.ab-yes:hover,.ab-yes.sel{background:var(--green);color:#fff;border-color:var(--green);}
+.ab-maybe{background:rgba(90,58,10,.3);color:var(--amber-light);border:1px solid rgba(90,58,10,.4);}
+.ab-maybe:hover,.ab-maybe.sel{background:var(--amber-bg);color:#fff;border-color:var(--amber-bg);}
+.ab-no{background:rgba(122,45,58,.2);color:var(--red-light);border:1px solid rgba(122,45,58,.3);}
+.ab-no:hover,.ab-no.sel{background:var(--red-bg);color:#fff;border-color:var(--red-bg);}
+
+/* Coach availability overview */
+.avail-overview{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:15px 17px;margin-bottom:12px;}
+.ao-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;color:#fff;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.avail-bar{height:7px;border-radius:4px;background:var(--surface);display:flex;overflow:hidden;margin-bottom:6px;}
+.ab-bar-yes{background:var(--green-light);}
+.ab-bar-maybe{background:var(--amber-light);}
+.ab-bar-no{background:var(--red-light);}
+.avail-legend{display:flex;gap:12px;font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;margin-bottom:14px;flex-wrap:wrap;}
+.al-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.player-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.player-row:last-child{border-bottom:none;}
+.pr-name{font-weight:600;}
+.pr-pos{font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;margin-left:5px;}
+.status-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:.5px;padding:3px 10px;border-radius:20px;}
+.sb-yes{background:rgba(45,122,74,.25);color:var(--green-light);}
+.sb-no{background:rgba(122,45,58,.25);color:var(--red-light);}
+.sb-maybe{background:rgba(90,58,10,.3);color:var(--amber-light);}
+.sb-none{background:rgba(255,255,255,.05);color:var(--muted);}
+
+/* ── HOUSE POINTS ── */
+.house-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.house-card{border-radius:12px;padding:16px;text-align:center;position:relative;overflow:hidden;}
+.hc-castle{background:linear-gradient(135deg,#3A2800,#5A3A00);border:2px solid var(--gold);}
+.hc-law{background:linear-gradient(135deg,#001A3A,#002A5A);border:2px solid var(--blue);}
+.hc-name{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;letter-spacing:2px;text-transform:uppercase;margin-bottom:1px;}
+.hc-castle .hc-name{color:var(--gold-light);}
+.hc-law .hc-name{color:var(--blue-light);}
+.hc-leader{font-size:10px;color:rgba(255,255,255,.45);margin-bottom:10px;font-family:'Barlow Condensed',sans-serif;}
+.hc-score{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:44px;line-height:1;}
+.hc-castle .hc-score{color:var(--gold);}
+.hc-law .hc-score{color:var(--blue);}
+.hc-pts-lbl{font-size:9px;color:rgba(255,255,255,.35);letter-spacing:2px;font-family:'Barlow Condensed',sans-serif;margin-top:3px;}
+.hc-leading{position:absolute;top:8px;right:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:9px;letter-spacing:1px;padding:2px 7px;border-radius:10px;background:rgba(200,151,42,.2);color:var(--gold);border:1px solid rgba(200,151,42,.3);}
+
+.pts-table{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.pts-hdr{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:9px 13px;background:rgba(255,255,255,.03);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;}
+.pts-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:9px 13px;border-top:1px solid var(--border);font-size:13px;align-items:center;transition:background .15s;}
+.pts-row:hover{background:rgba(255,255,255,.02);}
+.pts-row .pname{font-weight:600;}
+.pts-row .ppts{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;color:var(--gold);}
+.pts-row .pmini{font-size:11px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;}
+.pts-row.castle-row{border-left:2px solid var(--gold);}
+.pts-row.law-row{border-left:2px solid var(--blue);}
+
+.pts-system{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:15px 17px;}
+.ps-title{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
+.ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.ps-item{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border-radius:6px;padding:7px 11px;font-size:12px;}
+.ps-item .psi-lbl{color:var(--muted);}
+.ps-item .psi-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;}
+.psi-pos{color:var(--green-light);}
+.psi-neg{color:var(--red-light);}
+
+/* ── TEAM SHEET ── */
+.match-hdr{background:linear-gradient(135deg,var(--maroon),var(--maroon-deep));border:1px solid rgba(200,151,42,.3);border-radius:10px;padding:14px 17px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.mh-vs{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:19px;color:#fff;}
+.mh-detail{font-size:12px;color:rgba(255,255,255,.55);margin-top:2px;}
+.mh-status{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;padding:5px 12px;border-radius:20px;background:rgba(45,122,74,.3);color:var(--green-light);border:1px solid rgba(45,122,74,.5);}
+.mh-pending{background:rgba(90,58,10,.3);color:var(--amber-light);border:1px solid rgba(90,58,10,.5);}
+
+.formation{background:#162A16;border:1.5px solid #2D5A2D;border-radius:12px;padding:18px 10px;margin-bottom:14px;}
+.form-row{display:flex;justify-content:center;gap:7px;margin-bottom:10px;}
+.form-row:last-child{margin-bottom:0;}
+.pslot{background:rgba(107,30,46,.6);border:1.5px solid rgba(200,151,42,.45);border-radius:8px;padding:7px 7px;text-align:center;min-width:52px;cursor:pointer;transition:all .15s;}
+.pslot:hover{background:var(--maroon);border-color:var(--gold);transform:translateY(-2px);}
+.pslot-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;color:var(--gold);line-height:1;}
+.pslot-name{font-size:9px;color:rgba(255,255,255,.75);font-family:'Barlow Condensed',sans-serif;font-weight:600;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:50px;}
+.pslot-pos{font-size:8px;color:var(--muted);font-family:'Barlow Condensed',sans-serif;margin-top:1px;}
+.pslot-empty{opacity:.35;}
+.bench-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;color:var(--gold);letter-spacing:2px;text-align:center;margin:8px 0 6px;text-transform:uppercase;}
+.form-div{height:1px;background:rgba(255,255,255,.07);margin:10px 0;}
+
+/* ── MODALS ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:16px;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border:1px solid var(--gold);border-radius:14px;padding:26px 22px;width:100%;max-width:360px;}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:4px;}
+.modal-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
+
+/* Forms */
+.field{margin-bottom:14px;}
+.field label{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:10px 12px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border-color .2s;}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold);}
+.field select option{background:var(--card);}
+.field textarea{resize:vertical;min-height:80px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+
+/* PIN */
+.pin-dots{display:flex;justify-content:center;gap:10px;margin-bottom:18px;}
+.pin-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--gold);background:transparent;transition:background .15s;}
+.pin-dot.filled{background:var(--gold);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;}
+.pin-key{background:var(--card);border:1px solid var(--border);color:#fff;border-radius:7px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;cursor:pointer;transition:all .15s;text-align:center;}
+.pin-key:hover{background:var(--maroon);border-color:var(--gold);}
+
+.modal-link{color:var(--muted);font-size:12px;cursor:pointer;text-align:center;margin-top:8px;}
+.modal-link:hover{color:var(--text);}
+.modal-link span{text-decoration:underline;}
+.modal-err{color:var(--red-light);font-size:12px;text-align:center;margin-top:8px;min-height:16px;}
+
+/* Post composer */
+.post-composer{background:var(--card);border:1px solid rgba(200,151,42,.3);border-radius:10px;padding:14px 16px;margin-bottom:14px;display:none;}
+.post-composer.open{display:block;}
+.composer-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+.cat-btn{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:20px;padding:5px 12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.cat-btn.active{background:var(--maroon);border-color:var(--gold);color:var(--gold-light);}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--maroon);border:1px solid var(--gold);color:#fff;border-radius:8px;padding:10px 20px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;transition:transform .3s;z-index:500;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── WELCOME SCREEN ── */
+.welcome{min-height:calc(100vh - 54px);display:flex;align-items:center;justify-content:center;padding:24px;}
+.welcome-box{text-align:center;max-width:340px;}
+.welcome-badge{width:72px;height:72px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:var(--maroon-deep);margin:0 auto 18px;}
+.welcome-title{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;letter-spacing:1px;color:#fff;margin-bottom:8px;}
+.welcome-sub{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:26px;}
+.welcome-btns{display:flex;flex-direction:column;gap:10px;}
+
+/* ── PROFILE CHIP ── */
+.profile-chip{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:16px;}
+.pc-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:13px;color:#fff;flex-shrink:0;}
+.pc-castle{background:var(--maroon);border:1.5px solid var(--gold);}
+.pc-law{background:#1A3A5A;border:1.5px solid var(--blue);}
+.pc-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:13px;color:#fff;}
+.pc-detail{font-size:11px;color:var(--muted);}
+.pc-logout{margin-left:auto;font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;}
+.pc-logout:hover{color:var(--red-light);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* Coach-only */
+.co{display:none;}
+body.coach .co{display:block;}
+body.coach .co-flex{display:flex;}
+.co-flex{display:none;}
+</style>
+</head>
+<body>
+
+<!-- ══ OVERLAYS ══ -->
+
+<!-- Register -->
+<div class="overlay" id="regOverlay">
+<div class="modal">
+  <div class="modal-title">JOIN THE HUB</div>
+  <div class="modal-sub">Create your player account</div>
+  <div class="field"><label>Full Name</label><input type="text" id="regName" placeholder="e.g. Jamie Robertson"></div>
+  <div class="field-row">
+    <div class="field"><label>Position</label>
+      <select id="regPos">
+        <option value="">Select...</option>
+        <optgroup label="Forwards">
+          <option>Loose-head Prop</option><option>Hooker</option><option>Tight-head Prop</option>
+          <option>Lock</option><option>Blindside Flanker</option><option>Openside Flanker</option><option>No.8</option>
+        </optgroup>
+        <optgroup label="Backs">
+          <option>Scrum-half</option><option>Fly-half</option><option>Inside Centre</option>
+          <option>Outside Centre</option><option>Wing</option><option>Fullback</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="field"><label>House</label>
+      <select id="regHouse">
+        <option value="">Select...</option>
+        <option value="Castle">Castle</option>
+        <option value="Law">Law</option>
+      </select>
+    </div>
+  </div>
+  <div class="field"><label>Set a 4-digit PIN</label><input type="password" inputmode="numeric" maxlength="4" id="regPin" placeholder="Choose a PIN"></div>
+  <button class="btn btn-gold btn-full" onclick="registerPlayer()">Create Account</button>
+  <div class="modal-err" id="regErr"></div>
+  <div class="modal-link" onclick="showLogin()">Already have an account? <span>Log in</span></div>
+</div>
+</div>
+
+<!-- Login -->
+<div class="overlay" id="loginOverlay">
+<div class="modal">
+  <div class="modal-title">PLAYER LOGIN</div>
+  <div class="modal-sub">Enter your name and PIN</div>
+  <div class="field"><label>Your Name</label><input type="text" id="loginName" placeholder="Your registered name"></div>
+  <div class="field"><label>PIN</label>
+    <div class="pin-dots" id="loginDots">
+      <div class="pin-dot" id="ld0"></div><div class="pin-dot" id="ld1"></div>
+      <div class="pin-dot" id="ld2"></div><div class="pin-dot" id="ld3"></div>
+    </div>
+    <div class="pin-pad">
+      <div class="pin-key" onclick="lpin('1')">1</div><div class="pin-key" onclick="lpin('2')">2</div><div class="pin-key" onclick="lpin('3')">3</div>
+      <div class="pin-key" onclick="lpin('4')">4</div><div class="pin-key" onclick="lpin('5')">5</div><div class="pin-key" onclick="lpin('6')">6</div>
+      <div class="pin-key" onclick="lpin('7')">7</div><div class="pin-key" onclick="lpin('8')">8</div><div class="pin-key" onclick="lpin('9')">9</div>
+      <div class="pin-key" style="grid-column:2" onclick="lpin('0')">0</div>
+    </div>
+  </div>
+  <div class="modal-err" id="loginErr"></div>
+  <div class="modal-link" onclick="showRegister()">New player? <span>Create account</span></div>
+  <div class="modal-link" style="margin-top:4px;" onclick="showCoachPin()">Coach? <span>Coach login</span></div>
+</div>
+</div>
+
+<!-- Coach PIN -->
+<div class="overlay" id="coachOverlay">
+<div class="modal">
+  <div class="modal-title">COACH ACCESS</div>
+  <div class="modal-sub">Enter the coach PIN</div>
+  <div class="pin-dots" id="coachDots">
+    <div class="pin-dot" id="cd0"></div><div class="pin-dot" id="cd1"></div>
+    <div class="pin-dot" id="cd2"></div><div class="pin-dot" id="cd3"></div>
+  </div>
+  <div class="pin-pad">
+    <div class="pin-key" onclick="cpin('1')">1</div><div class="pin-key" onclick="cpin('2')">2</div><div class="pin-key" onclick="cpin('3')">3</div>
+    <div class="pin-key" onclick="cpin('4')">4</div><div class="pin-key" onclick="cpin('5')">5</div><div class="pin-key" onclick="cpin('6')">6</div>
+    <div class="pin-key" onclick="cpin('7')">7</div><div class="pin-key" onclick="cpin('8')">8</div><div class="pin-key" onclick="cpin('9')">9</div>
+    <div class="pin-key" style="grid-column:2" onclick="cpin('0')">0</div>
+  </div>
+  <div class="modal-err" id="coachErr"></div>
+  <div class="modal-link" onclick="closeAllOverlays()"><span>Cancel</span></div>
+</div>
+</div>
+
+<!-- Post composer overlay -->
+<div class="overlay" id="postOverlay">
+<div class="modal" style="max-width:420px;">
+  <div class="modal-title">NEW POST</div>
+  <div class="modal-sub">Post to the noticeboard</div>
+  <div class="field"><label>Title</label><input type="text" id="postTitle" placeholder="Post title"></div>
+  <div class="field"><label>Message</label><textarea id="postBody" placeholder="Write your message..."></textarea></div>
+  <div class="field">
+    <label>Category</label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;" id="catBtns">
+      <div class="cat-btn active" data-cat="training">Training</div>
+      <div class="cat-btn" data-cat="selection">Selection</div>
+      <div class="cat-btn" data-cat="tactics">Tactics</div>
+      <div class="cat-btn" data-cat="general">General</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-gold" style="flex:1;justify-content:center;" onclick="submitPost()">Post</button>
+    <button class="btn btn-outline" onclick="closeAllOverlays()">Cancel</button>
+  </div>
+  <div class="modal-err" id="postErr"></div>
+</div>
+</div>
+
+<!-- ══ HEADER ══ -->
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="badge">RFC</div>
+    <div>
+      <div class="hdr-name">PANMURE RFC</div>
+      <div class="hdr-sub">Coaching Hub</div>
+    </div>
+  </div>
+  <div class="hdr-user" id="hdrUser">
+    <div class="user-pill" id="loginBtn" onclick="showLogin()">Log In</div>
+  </div>
+</header>
+
+<!-- ══ NAV ══ -->
+<nav class="nav" id="mainNav" style="display:none;">
+  <div class="nav-tab active" data-tab="noticeboard">📋 Board</div>
+  <div class="nav-tab" data-tab="availability">✅ Availability</div>
+  <div class="nav-tab" data-tab="teamsheet">🏉 Team Sheet</div>
+  <div class="nav-tab" data-tab="house">🏠 House</div>
+</nav>
+
+<!-- ══ WELCOME (logged out) ══ -->
+<div id="welcomeScreen">
+  <div class="welcome">
+    <div class="welcome-box">
+      <div class="welcome-badge">RFC</div>
+      <div class="welcome-title">PANMURE RFC<br>COACHING HUB</div>
+      <div class="welcome-sub">One place for everything — noticeboard, availability, team sheets, and House Points. No more chasing WhatsApp.<br><br>Season 2026/27 · Caledonia 1</div>
+      <div class="welcome-btns">
+        <button class="btn btn-gold btn-full" onclick="showRegister()">Create Player Account</button>
+        <button class="btn btn-maroon btn-full" onclick="showLogin()">Log In</button>
+        <button class="btn btn-outline btn-full" onclick="showCoachPin()">🔒 Coach Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MAIN CONTENT ══ -->
+<div id="mainContent" style="display:none;">
+
+<!-- NOTICEBOARD -->
+<div class="page active" id="page-noticeboard">
+<div class="container">
+  <div class="sec-hdr">
+    <div class="sec-title">NOTICE<span>BOARD</span></div>
+    <button class="btn btn-gold co" onclick="openPostComposer()">＋ Post</button>
+  </div>
+
+  <div class="pinned">
+    <div class="pin-lbl">📌 Pinned · Neil Dymock · Head Coach</div>
+    <h3>Pre-Season Starts Tuesday 8th April — All Players Required</h3>
+    <p>Training confirmed 7pm at Braeview Academy. Full squad expected. Log into the S&C app before you arrive — benchmarks recorded Week 1. Zero tolerance for lateness this season.</p>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:10px;">
+      <span class="pill pill-pinned">Pinned</span>
+      <span class="pill pill-training">Training</span>
+      <span class="post-time">28 Mar</span>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="fbtn active" data-filter="all">All</div>
+    <div class="fbtn" data-filter="training">Training</div>
+    <div class="fbtn" data-filter="selection">Selection</div>
+    <div class="fbtn" data-filter="tactics">Tactics</div>
+    <div class="fbtn" data-filter="general">General</div>
+  </div>
+
+  <div id="postsList">
+    <div class="card" data-cat="tactics">
+      <div class="card-title">Lineout Calls — Updated Sheet</div>
+      <div class="card-body">Castle = forwards ball, Law = backs ball. 10 has override. Three new variations off the front. Review before Tuesday.</div>
+      <div class="card-meta"><span class="pill pill-tactics">Tactics</span><span class="post-author">Neil (Head Coach)</span><span class="post-time">27 Mar</span></div>
+    </div>
+    <div class="card" data-cat="selection">
+      <div class="card-title">Saturday Squad — vs Howe of Fife</div>
+      <div class="card-body">Squad of 22 confirmed Thursday. Training attendance this week matters. Check the Team Sheet tab once published.</div>
+      <div class="card-meta"><span class="pill pill-selection">Selection</span><span class="post-author">Neil (Head Coach)</span><span class="post-time">26 Mar</span></div>
+    </div>
+    <div class="card" data-cat="tactics">
+      <div class="card-title">1–3–3–1 Shape — Key Reminders</div>
+      <div class="card-body">Flankers hold 15m channels. Front five stay central. Pods fold early. Sub-3 second ruck speed. Full system in the Resources tab.</div>
+      <div class="card-meta"><span class="pill pill-tactics">Tactics</span><span class="post-author">Neil (Head Coach)</span><span class="post-time">25 Mar</span></div>
+    </div>
+    <div class="card" data-cat="tactics">
+      <div class="card-title">Veo Footage — Friendly vs Montrose</div>
+      <div class="card-body">Full match up. Focus: defensive line speed and exit strategy from our 22. Timestamped clips linked in Resources.</div>
+      <div class="card-meta"><span class="pill pill-tactics">Tactics</span><span class="post-author">Neil (Head Coach)</span><span class="post-time">22 Mar</span></div>
+    </div>
+    <div class="card" data-cat="training">
+      <div class="card-title">S&C Benchmark Week 1 — Register Now</div>
+      <div class="card-body">Ian will run benchmarks at the first session. Set your name in the pre-season app before Tuesday. Link in Resources.</div>
+      <div class="card-meta"><span class="pill pill-training">Training</span><span class="post-author">Ian (S&C)</span><span class="post-time">20 Mar</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- AVAILABILITY -->
+<div class="page" id="page-availability">
+<div class="container">
+  <div class="sec-hdr">
+    <div class="sec-title">AVAIL<span>ABILITY</span></div>
+  </div>
+
+  <!-- Player view -->
+  <div id="playerAvailSection">
+    <div id="profileChip"></div>
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-weight:700;">Mark your availability</div>
+    <div class="session-grid">
+      <div class="sess-card">
+        <div class="sess-day">Tuesday</div>
+        <div class="sess-date">8 Apr</div>
+        <div class="sess-info">Team Training · 18:30<br>Braeview Academy</div>
+        <div class="avail-btns" id="availBtns-tue">
+          <button class="avail-btn ab-yes" data-session="tue" data-val="yes">✓ Yes</button>
+          <button class="avail-btn ab-maybe" data-session="tue" data-val="maybe">? Maybe</button>
+          <button class="avail-btn ab-no" data-session="tue" data-val="no">✕ No</button>
+        </div>
+      </div>
+      <div class="sess-card">
+        <div class="sess-day">Saturday</div>
+        <div class="sess-date">12 Apr</div>
+        <div class="sess-info">Match vs Howe of Fife<br>3pm KO · Away</div>
+        <div class="avail-btns" id="availBtns-sat">
+          <button class="avail-btn ab-yes" data-session="sat" data-val="yes">✓ Yes</button>
+          <button class="avail-btn ab-maybe" data-session="sat" data-val="maybe">? Maybe</button>
+          <button class="avail-btn ab-no" data-session="sat" data-val="no">✕ No</button>
+        </div>
+      </div>
+    </div>
+    <div style="background:rgba(200,151,42,.07);border:1px solid rgba(200,151,42,.2);border-radius:8px;padding:11px 13px;">
+      <div style="font-size:12px;color:var(--muted);line-height:1.5;">⚠️ <strong style="color:var(--gold-light);">Same-day call-offs receive no House points</strong> unless agreed as emergency by coaching staff.</div>
+    </div>
+  </div>
+
+  <!-- Coach view -->
+  <div id="coachAvailSection" style="display:none;">
+    <div class="avail-overview">
+      <div class="ao-title">Tuesday 8 Apr — Training <span style="font-size:11px;color:var(--muted);">22 players</span></div>
+      <div class="avail-bar">
+        <div class="ab-bar-yes" style="width:68%;"></div>
+        <div class="ab-bar-maybe" style="width:14%;"></div>
+        <div class="ab-bar-no" style="width:18%;"></div>
+      </div>
+      <div class="avail-legend">
+        <span style="display:flex;align-items:center;gap:5px;"><div class="al-dot" style="background:var(--green-light);"></div>15 available</span>
+        <span style="display:flex;align-items:center;gap:5px;"><div class="al-dot" style="background:var(--amber-light);"></div>3 maybe</span>
+        <span style="display:flex;align-items:center;gap:5px;"><div class="al-dot" style="background:var(--red-light);"></div>4 unavailable</span>
+      </div>
+      <div id="coachPlayerList">
+        <div class="player-row"><span><span class="pr-name">Robertson</span><span class="pr-pos">Prop</span></span><span class="status-badge sb-yes">Available</span></div>
+        <div class="player-row"><span><span class="pr-name">Mackenzie</span><span class="pr-pos">Hooker</span></span><span class="status-badge sb-yes">Available</span></div>
+        <div class="player-row"><span><span class="pr-name">Geddes</span><span class="pr-pos">Prop</span></span><span class="status-badge sb-maybe">Maybe</span></div>
+        <div class="player-row"><span><span class="pr-name">Murray</span><span class="pr-pos">Lock</span></span><span class="status-badge sb-yes">Available</span></div>
+        <div class="player-row"><span><span class="pr-name">Fleming</span><span class="pr-pos">Lock</span></span><span class="status-badge sb-no">Unavailable</span></div>
+        <div class="player-row"><span><span class="pr-name">Whyte</span><span class="pr-pos">Flanker</span></span><span class="status-badge sb-yes">Available</span></div>
+        <div class="player-row"><span><span class="pr-name">Anderson</span><span class="pr-pos">Flanker</span></span><span class="status-badge sb-yes">Available</span></div>
+        <div class="player-row"><span><span class="pr-name">Stewart</span><span class="pr-pos">No.8</span></span><span class="status-badge sb-none">No response</span></div>
+        <div class="player-row"><span><span class="pr-name">Reid</span><span class="pr-pos">Scrum-half</span></span><span class="status-badge sb-yes">Available</span></div>
+        <div class="player-row"><span><span class="pr-name">Grant</span><span class="pr-pos">Fly-half</span></span><span class="status-badge sb-yes">Available</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- TEAM SHEET -->
+<div class="page" id="page-teamsheet">
+<div class="container">
+  <div class="sec-hdr">
+    <div class="sec-title">TEAM <span>SHEET</span></div>
+    <button class="btn btn-gold co" onclick="toast('Team sheet editor — coming in full build')">✏️ Edit</button>
+  </div>
+  <div class="match-hdr">
+    <div>
+      <div class="mh-vs">vs Howe of Fife RFC</div>
+      <div class="mh-detail">Saturday 12 Apr · 3:00pm KO · Away</div>
+    </div>
+    <div class="mh-status">Confirmed</div>
+  </div>
+  <div class="formation">
+    <div class="form-row">
+      <div class="pslot"><div class="pslot-num">1</div><div class="pslot-name">Robertson</div><div class="pslot-pos">Loose-head</div></div>
+      <div class="pslot"><div class="pslot-num">2</div><div class="pslot-name">Mackenzie</div><div class="pslot-pos">Hooker</div></div>
+      <div class="pslot"><div class="pslot-num">3</div><div class="pslot-name">Geddes</div><div class="pslot-pos">Tight-head</div></div>
+    </div>
+    <div class="form-row">
+      <div class="pslot"><div class="pslot-num">4</div><div class="pslot-name">Murray</div><div class="pslot-pos">Lock</div></div>
+      <div class="pslot"><div class="pslot-num">5</div><div class="pslot-name">Fleming</div><div class="pslot-pos">Lock</div></div>
+    </div>
+    <div class="form-row">
+      <div class="pslot"><div class="pslot-num">6</div><div class="pslot-name">Whyte</div><div class="pslot-pos">Blindside</div></div>
+      <div class="pslot"><div class="pslot-num">7</div><div class="pslot-name">Anderson</div><div class="pslot-pos">Openside</div></div>
+      <div class="pslot"><div class="pslot-num">8</div><div class="pslot-name">Stewart</div><div class="pslot-pos">No.8</div></div>
+    </div>
+    <div class="form-row">
+      <div class="pslot"><div class="pslot-num">9</div><div class="pslot-name">Reid</div><div class="pslot-pos">Scrum-half</div></div>
+      <div class="pslot"><div class="pslot-num">10</div><div class="pslot-name">Grant</div><div class="pslot-pos">Fly-half</div></div>
+    </div>
+    <div class="form-row">
+      <div class="pslot"><div class="pslot-num">11</div><div class="pslot-name">Docherty</div><div class="pslot-pos">Wing</div></div>
+      <div class="pslot"><div class="pslot-num">12</div><div class="pslot-name">Lamont</div><div class="pslot-pos">Inside Ctr</div></div>
+      <div class="pslot"><div class="pslot-num">13</div><div class="pslot-name">Morrison</div><div class="pslot-pos">Outside Ctr</div></div>
+      <div class="pslot"><div class="pslot-num">14</div><div class="pslot-name">Bruce</div><div class="pslot-pos">Wing</div></div>
+      <div class="pslot"><div class="pslot-num">15</div><div class="pslot-name">Campbell</div><div class="pslot-pos">Fullback</div></div>
+    </div>
+    <div class="form-div"></div>
+    <div class="bench-lbl">Bench</div>
+    <div class="form-row">
+      <div class="pslot" style="opacity:.75"><div class="pslot-num">16</div><div class="pslot-name">Thomson</div><div class="pslot-pos">Hooker</div></div>
+      <div class="pslot" style="opacity:.75"><div class="pslot-num">17</div><div class="pslot-name">Henderson</div><div class="pslot-pos">Prop</div></div>
+      <div class="pslot pslot-empty"><div class="pslot-num">18</div><div class="pslot-name">TBC</div><div class="pslot-pos">—</div></div>
+      <div class="pslot pslot-empty"><div class="pslot-num">19</div><div class="pslot-name">TBC</div><div class="pslot-pos">—</div></div>
+      <div class="pslot" style="opacity:.75"><div class="pslot-num">20</div><div class="pslot-name">Paterson</div><div class="pslot-pos">Back</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:11px;color:var(--gold);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;">Coach Notes</div>
+    <div style="font-size:13px;color:rgba(240,237,232,.7);line-height:1.55;">Focus on set piece consistency. Exit strategy priority after Montrose review — "Brown" call must be sharp. 18 and 19 still to confirm. Players not in the 22 available for Development XV.</div>
+  </div>
+</div>
+</div>
+
+<!-- HOUSE POINTS -->
+<div class="page" id="page-house">
+<div class="container">
+  <div class="sec-hdr">
+    <div class="sec-title">HOUSE <span>POINTS</span></div>
+    <button class="btn btn-gold co" onclick="toast('Update points — coming in full build')">＋ Update</button>
+  </div>
+  <div class="house-grid">
+    <div class="house-card hc-castle">
+      <div class="hc-leading">🏆 LEADING</div>
+      <div class="hc-name">Castle</div>
+      <div class="hc-leader">Club Captain</div>
+      <div class="hc-score">87</div>
+      <div class="hc-pts-lbl">POINTS</div>
+    </div>
+    <div class="house-card hc-law">
+      <div class="hc-name">Law</div>
+      <div class="hc-leader">Vice-Captain</div>
+      <div class="hc-score">74</div>
+      <div class="hc-pts-lbl">POINTS</div>
+    </div>
+  </div>
+  <div class="pts-table">
+    <div class="pts-hdr"><div>Player</div><div>House</div><div>Pts</div><div>Attend</div></div>
+    <div class="pts-row castle-row"><div class="pname">Robertson</div><div><span class="pill pill-castle">Castle</span></div><div class="ppts">24</div><div class="pmini">8/8</div></div>
+    <div class="pts-row castle-row"><div class="pname">Mackenzie</div><div><span class="pill pill-castle">Castle</span></div><div class="ppts">21</div><div class="pmini">7/8</div></div>
+    <div class="pts-row law-row"><div class="pname">Anderson</div><div><span class="pill pill-law">Law</span></div><div class="ppts">19</div><div class="pmini">8/8</div></div>
+    <div class="pts-row castle-row"><div class="pname">Murray</div><div><span class="pill pill-castle">Castle</span></div><div class="ppts">18</div><div class="pmini">7/8</div></div>
+    <div class="pts-row law-row"><div class="pname">Grant</div><div><span class="pill pill-law">Law</span></div><div class="ppts">17</div><div class="pmini">6/8</div></div>
+    <div class="pts-row law-row"><div class="pname">Reid</div><div><span class="pill pill-law">Law</span></div><div class="ppts">16</div><div class="pmini">7/8</div></div>
+    <div class="pts-row castle-row"><div class="pname">Whyte</div><div><span class="pill pill-castle">Castle</span></div><div class="ppts">15</div><div class="pmini">6/8</div></div>
+    <div class="pts-row law-row"><div class="pname">Stewart</div><div><span class="pill pill-law">Law</span></div><div class="ppts">12</div><div class="pmini">5/8</div></div>
+  </div>
+  <div class="pts-system">
+    <div class="ps-title">Points System</div>
+    <div class="ps-grid">
+      <div class="ps-item"><span class="psi-lbl">Win training comp</span><span class="psi-val psi-pos">+5</span></div>
+      <div class="ps-item"><span class="psi-lbl">Full attendance</span><span class="psi-val psi-pos">+3</span></div>
+      <div class="ps-item"><span class="psi-lbl">Warm-up intensity</span><span class="psi-val psi-pos">+2</span></div>
+      <div class="ps-item"><span class="psi-lbl">Clean changing room</span><span class="psi-val psi-pos">+1</span></div>
+      <div class="ps-item"><span class="psi-lbl">Best discipline</span><span class="psi-val psi-pos">+1</span></div>
+      <div class="ps-item"><span class="psi-lbl">Lateness</span><span class="psi-val psi-neg">−3</span></div>
+      <div class="ps-item"><span class="psi-lbl">Poor discipline</span><span class="psi-val psi-neg">−5</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div><!-- end mainContent -->
+
+<!-- TOAST -->
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ══ STATE ══
+var COACH_PIN = '1880';
+var currentUser = null;
+var isCoach = false;
+var loginPin = '';
+var coachPin = '';
+var selectedCat = 'training';
+
+// Load saved user
+try {
+  var saved = localStorage.getItem('prfc_user');
+  if (saved) {
+    currentUser = JSON.parse(saved);
+    initLoggedIn();
+  }
+} catch(e) {}
+
+// ══ INIT ══
+function initLoggedIn() {
+  document.getElementById('welcomeScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('mainNav').style.display = 'flex';
+  updateHeader();
+  updateProfileChip();
+  restoreAvailability();
+}
+
+function updateHeader() {
+  var el = document.getElementById('hdrUser');
+  if (isCoach) {
+    el.innerHTML = '<div class="user-pill coach-active">✅ Coach Mode</div>';
+  } else if (currentUser) {
+    var initials = currentUser.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
+    el.innerHTML = '<div class="user-pill active" onclick="logoutPlayer()">' + initials + ' · ' + currentUser.name.split(' ')[0] + '</div>';
+  } else {
+    el.innerHTML = '<div class="user-pill" id="loginBtn" onclick="showLogin()">Log In</div>';
+  }
+}
+
+function updateProfileChip() {
+  var el = document.getElementById('profileChip');
+  if (!el) return;
+  if (currentUser) {
+    var initials = currentUser.name.split(' ').map(function(w){return w[0];}).join('').substring(0,2).toUpperCase();
+    var houseClass = currentUser.house === 'Castle' ? 'pc-castle' : 'pc-law';
+    el.innerHTML = '<div class="profile-chip"><div class="pc-avatar ' + houseClass + '">' + initials + '</div><div><div class="pc-name">' + currentUser.name + '</div><div class="pc-detail">' + currentUser.position + ' · House ' + currentUser.house + '</div></div><div class="pc-logout" onclick="logoutPlayer()">Log out</div></div>';
+  } else {
+    el.innerHTML = '';
+  }
+}
+
+// ══ TABS ══
+document.addEventListener('DOMContentLoaded', function() {
+  // Nav tabs
+  var tabs = document.querySelectorAll('.nav-tab');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      var id = this.getAttribute('data-tab');
+      tabs.forEach(function(t) { t.classList.remove('active'); });
+      document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+      this.classList.add('active');
+      document.getElementById('page-' + id).classList.add('active');
+      if (id === 'availability') updateAvailView();
+    });
+  });
+
+  // Filter buttons
+  document.querySelectorAll('.fbtn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.fbtn').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      var filter = this.getAttribute('data-filter');
+      document.querySelectorAll('#postsList .card').forEach(function(card) {
+        if (filter === 'all' || card.getAttribute('data-cat') === filter) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Availability buttons
+  document.querySelectorAll('.avail-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var session = this.getAttribute('data-session');
+      var val = this.getAttribute('data-val');
+      var group = document.querySelectorAll('[data-session="' + session + '"]');
+      group.forEach(function(b) { b.classList.remove('sel'); });
+      this.classList.add('sel');
+      saveAvailability(session, val);
+      toast('Marked as ' + val + ' ✓');
+    });
+  });
+
+  // Category buttons in post composer
+  document.querySelectorAll('#catBtns .cat-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#catBtns .cat-btn').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      selectedCat = this.getAttribute('data-cat');
+    });
+  });
+});
+
+// ══ AVAILABILITY STORAGE ══
+function saveAvailability(session, val) {
+  if (!currentUser) return;
+  try {
+    var key = 'prfc_avail_' + currentUser.name;
+    var data = {};
+    try { data = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+    data[session] = val;
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch(e) {}
+}
+
+function restoreAvailability() {
+  if (!currentUser) return;
+  try {
+    var key = 'prfc_avail_' + currentUser.name;
+    var data = JSON.parse(localStorage.getItem(key) || '{}');
+    Object.keys(data).forEach(function(session) {
+      var btns = document.querySelectorAll('[data-session="' + session + '"]');
+      btns.forEach(function(b) {
+        b.classList.remove('sel');
+        if (b.getAttribute('data-val') === data[session]) b.classList.add('sel');
+      });
+    });
+  } catch(e) {}
+}
+
+function updateAvailView() {
+  var playerSection = document.getElementById('playerAvailSection');
+  var coachSection = document.getElementById('coachAvailSection');
+  if (isCoach) {
+    playerSection.style.display = 'none';
+    coachSection.style.display = 'block';
+  } else {
+    playerSection.style.display = 'block';
+    coachSection.style.display = 'none';
+  }
+}
+
+// ══ AUTH ══
+function showRegister() {
+  closeAllOverlays();
+  document.getElementById('regOverlay').classList.add('open');
+}
+function showLogin() {
+  closeAllOverlays();
+  loginPin = '';
+  updateLoginDots();
+  document.getElementById('loginOverlay').classList.add('open');
+}
+function showCoachPin() {
+  closeAllOverlays();
+  coachPin = '';
+  updateCoachDots();
+  document.getElementById('coachOverlay').classList.add('open');
+}
+function closeAllOverlays() {
+  document.querySelectorAll('.overlay').forEach(function(o) { o.classList.remove('open'); });
+}
+
+function registerPlayer() {
+  var name = document.getElementById('regName').value.trim();
+  var pos  = document.getElementById('regPos').value;
+  var house = document.getElementById('regHouse').value;
+  var pin  = document.getElementById('regPin').value;
+  var err  = document.getElementById('regErr');
+  if (!name || !pos || !house || pin.length !== 4) {
+    err.textContent = 'Please fill in all fields and set a 4-digit PIN.';
+    return;
+  }
+  try {
+    var players = JSON.parse(localStorage.getItem('prfc_players') || '[]');
+    var exists = players.some(function(p) { return p.name.toLowerCase() === name.toLowerCase(); });
+    if (exists) { err.textContent = 'That name is already registered.'; return; }
+    players.push({ name: name, position: pos, house: house, pin: pin });
+    localStorage.setItem('prfc_players', JSON.stringify(players));
+    currentUser = { name: name, position: pos, house: house };
+    localStorage.setItem('prfc_user', JSON.stringify(currentUser));
+    closeAllOverlays();
+    initLoggedIn();
+    toast('Welcome to the Hub, ' + name.split(' ')[0] + '! 🏉');
+  } catch(e) {
+    err.textContent = 'Something went wrong. Try again.';
+  }
+}
+
+function lpin(n) {
+  if (loginPin.length >= 4) return;
+  loginPin += n;
+  updateLoginDots();
+  if (loginPin.length === 4) {
+    setTimeout(function() {
+      var name = document.getElementById('loginName').value.trim();
+      var err  = document.getElementById('loginErr');
+      if (!name) { err.textContent = 'Enter your name first.'; loginPin = ''; updateLoginDots(); return; }
+      try {
+        var players = JSON.parse(localStorage.getItem('prfc_players') || '[]');
+        var player = players.find(function(p) { return p.name.toLowerCase() === name.toLowerCase() && p.pin === loginPin; });
+        if (player) {
+          currentUser = { name: player.name, position: player.position, house: player.house };
+          localStorage.setItem('prfc_user', JSON.stringify(currentUser));
+          closeAllOverlays();
+          initLoggedIn();
+          toast('Welcome back, ' + player.name.split(' ')[0] + '! 👋');
+        } else {
+          err.textContent = 'Name or PIN not recognised.';
+          loginPin = '';
+          updateLoginDots();
+          flashDots('ld');
+        }
+      } catch(e) { err.textContent = 'Error. Try again.'; loginPin = ''; updateLoginDots(); }
+    }, 200);
+  }
+}
+
+function cpin(n) {
+  if (coachPin.length >= 4) return;
+  coachPin += n;
+  updateCoachDots();
+  if (coachPin.length === 4) {
+    setTimeout(function() {
+      if (coachPin === COACH_PIN) {
+        isCoach = true;
+        currentUser = { name: 'Coach', position: 'Coach', house: '' };
+        document.body.classList.add('coach');
+        closeAllOverlays();
+        document.getElementById('welcomeScreen').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
+        document.getElementById('mainNav').style.display = 'flex';
+        updateHeader();
+        toast('Coach mode unlocked 🔓');
+      } else {
+        coachPin = '';
+        updateCoachDots();
+        document.getElementById('coachErr').textContent = 'Incorrect PIN.';
+        flashDots('cd');
+      }
+    }, 200);
+  }
+}
+
+function updateLoginDots() {
+  for (var i = 0; i < 4; i++) {
+    var d = document.getElementById('ld' + i);
+    if (d) d.classList.toggle('filled', i < loginPin.length);
+  }
+}
+function updateCoachDots() {
+  for (var i = 0; i < 4; i++) {
+    var d = document.getElementById('cd' + i);
+    if (d) d.classList.toggle('filled', i < coachPin.length);
+  }
+}
+function flashDots(prefix) {
+  for (var i = 0; i < 4; i++) {
+    var d = document.getElementById(prefix + i);
+    if (d) { d.style.background = '#E87A8A'; d.style.borderColor = '#E87A8A'; }
+  }
+  setTimeout(function() {
+    for (var i = 0; i < 4; i++) {
+      var d = document.getElementById(prefix + i);
+      if (d) { d.style.background = 'transparent'; d.style.borderColor = 'var(--gold)'; }
+    }
+  }, 600);
+}
+
+function logoutPlayer() {
+  currentUser = null;
+  isCoach = false;
+  document.body.classList.remove('coach');
+  localStorage.removeItem('prfc_user');
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('mainNav').style.display = 'none';
+  document.getElementById('welcomeScreen').style.display = 'block';
+  document.getElementById('hdrUser').innerHTML = '<div class="user-pill" onclick="showLogin()">Log In</div>';
+}
+
+// ══ POSTING ══
+function openPostComposer() {
+  document.getElementById('postOverlay').classList.add('open');
+}
+function submitPost() {
+  var title = document.getElementById('postTitle').value.trim();
+  var body  = document.getElementById('postBody').value.trim();
+  var err   = document.getElementById('postErr');
+  if (!title || !body) { err.textContent = 'Please add a title and message.'; return; }
+  var now = new Date();
+  var dateStr = now.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][now.getMonth()];
+  var card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('data-cat', selectedCat);
+  var pillClass = 'pill-' + selectedCat;
+  card.innerHTML = '<div class="card-title">' + title + '</div><div class="card-body">' + body + '</div><div class="card-meta"><span class="pill ' + pillClass + '">' + selectedCat.charAt(0).toUpperCase() + selectedCat.slice(1) + '</span><span class="post-author">Neil (Coach)</span><span class="post-time">Just now</span></div>';
+  var list = document.getElementById('postsList');
+  list.insertBefore(card, list.firstChild);
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postBody').value = '';
+  closeAllOverlays();
+  toast('Posted ✓');
+}
+
+// ══ TOAST ══
+function toast(msg) {
+  var el = document.getElementById('toastEl');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(function() { el.classList.remove('show'); }, 2200);
+}
+</script>
+</body>
+</html>
